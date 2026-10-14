@@ -14,9 +14,10 @@ spec:
     spec:
       containers:
         - name: executor
-          image: thomasm012/executor:0.1.1
+          image: thomasm012/executor:0.1.2
           imagePullPolicy: IfNotPresent
           env:
+            # RabbitMQ vars
             - name: EXECUTOR_WORKING_DIR
               value: /mnt/satops/executions
             - name: RABBITMQ_HOST
@@ -39,6 +40,31 @@ spec:
                 configMapKeyRef:
                   name: rabbitmq-config
                   key: rabbitmq-queue
+
+            # PostgreSQL vars
+            - name: PGHOST
+              value: postgres-service
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_DB
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            # Block vars
+            - name: WORKING_DIR
+              value: /mnt/satops/executions
+
           volumeMounts:
             - name: executions
               mountPath: /mnt/satops
