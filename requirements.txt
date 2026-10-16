@@ -1,10 +1,16 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
+greenlet
 sqlmodel
 pydantic
 pydantic_settings
 python-dotenv
 psycopg[binary]
+psycopg2-binary
+asyncpg
 alembic
 pika
+
+fastapi-users[sqalchemy]
+fastapi-users-db-sqlalchemy
