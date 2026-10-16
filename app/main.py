@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
 
+from fastapi import APIRouter, FastAPI
+from sqlmodel import SQLModel
+
 from app.api.v1.execution import router as execution_router
 from app.core.config import config
 from app.core.database import engine
 from app.models.execution import Execution  # Register the database model  # noqa: F401
-from fastapi import APIRouter, FastAPI
-from sqlmodel import SQLModel
 
 
 @asynccontextmanager

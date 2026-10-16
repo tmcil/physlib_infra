@@ -35,6 +35,13 @@ class Config(BaseSettings):
     pguser: str = os.getenv("PGUSER", "")
     pgpassword: str = os.getenv("PGPASSWORD", "")
 
+    # RabbitMQ
+    mqhost: str = os.getenv("RABBITMQ_HOST", "")
+    mqusername: str = os.getenv("RABBITMQ_USERNAME", "")
+    mqpassword: str = os.getenv("RABBITMQ_PASSWORD", "")
+    mqqueue: str = os.getenv("RABBITMQ_QUEUE", "")
+    mqport: int = int(os.getenv("RABBITMQ_PORT", "0"))
+
     @property
     def pgurl(self) -> str:
         return f"postgresql://{self.pguser}:{self.pgpassword}@{self.pghost}:{self.pgport}/{self.pgdatabase}"

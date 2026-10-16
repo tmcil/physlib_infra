@@ -1,10 +1,13 @@
 from collections.abc import Generator
 from uuid import UUID
 
-from app.core.database import engine
-from app.models.execution import Execution
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
+
+from app.core.database import engine
+from app.core.rabbitmq import mq_publish_execution
+from app.models.execution import Execution
 
 router = APIRouter(prefix="/executions", tags=["Executions"])
 
@@ -24,8 +27,25 @@ def create_execution(
     session: Session = Depends(get_session),  # noqa: B008
 ):
     session.add(execution)
-    session.commit()
-    session.refresh(execution)
+
+    try:
+        session.commit()
+        session.refresh(execution)
+    except IntegrityError as exc:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"An execution with this ID already exists: {execution.id!s}",
+        ) from exc
+
+    try:
+        mq_publish_execution(execution.id)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to publish execution to queue.",
+        ) from exc
+
     return execution
 
 
