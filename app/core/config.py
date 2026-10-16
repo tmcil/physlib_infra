@@ -16,9 +16,16 @@ class ISO8601Formatter(logging.Formatter):
 
 
 logging.basicConfig(level=logging.INFO)
+logging.getLogger("pika").setLevel(logging.WARNING)
+
+# Apply the same format to Uvicorn's loggers
+for name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+    logger = logging.getLogger(name)
+    logger.handlers.clear()
+    logger.propagate = True
 
 handler = logging.StreamHandler()
-handler.setFormatter(ISO8601Formatter("%(asctime)s %(levelname)s (SYS) %(message)s"))
+handler.setFormatter(ISO8601Formatter("%(asctime)s %(levelname)s (BKE) %(message)s"))
 root = logging.getLogger()
 root.handlers.clear()
 root.addHandler(handler)
