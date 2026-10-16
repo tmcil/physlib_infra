@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict QUEjGT0dfmuuNd1iY2oVvWZALBZjtQNQXHikqTGuhM75jGse5FJmKi3HPf7l5gm
+\restrict AyXCgvsoYiR8pcwKO3ir76EN5MkpAQt0mcdYW9COuq23PorZdfOBgknbt2SPaUb
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-1.pgdg24.04+2)
@@ -60,6 +60,20 @@ CREATE TABLE public.executions (
 
 
 --
+-- Name: user; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public."user" (
+    id uuid NOT NULL,
+    email character varying(320) NOT NULL,
+    hashed_password character varying(1024) NOT NULL,
+    is_active boolean NOT NULL,
+    is_superuser boolean NOT NULL,
+    is_verified boolean NOT NULL
+);
+
+
+--
 -- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -76,8 +90,23 @@ ALTER TABLE ONLY public.executions
 
 
 --
+-- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT user_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ix_user_email; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX ix_user_email ON public."user" USING btree (email);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict QUEjGT0dfmuuNd1iY2oVvWZALBZjtQNQXHikqTGuhM75jGse5FJmKi3HPf7l5gm
+\unrestrict AyXCgvsoYiR8pcwKO3ir76EN5MkpAQt0mcdYW9COuq23PorZdfOBgknbt2SPaUb
 

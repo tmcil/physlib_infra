@@ -31,6 +31,9 @@ psql -v ON_ERROR_STOP=1 \
     -h localhost -p 5433 -U admin -d postgres-db \
     -f pgdump.sql || exit 1
 
+# Stamp the migrations
+alembic stamp head
+
 ## Can be done manually!!!!!!!!!!!!!!!!!!!
 # Generate the migration
 # alembic revision --autogenerate -m "$MIGRATION_MESSAGE" || exit 1
