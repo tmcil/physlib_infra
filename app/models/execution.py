@@ -3,7 +3,7 @@ from enum import Enum
 from uuid import UUID, uuid4
 
 # from pydantic import BaseModel, Field
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, func, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
 
@@ -21,6 +21,7 @@ class Execution(SQLModel, table=True):
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     status: ExecutionStatus = Field(default=ExecutionStatus.CREATED)
+    user_id: UUID = Field(ForeignKey("user.id"), index=True)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=True),

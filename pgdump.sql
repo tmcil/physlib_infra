@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict AyXCgvsoYiR8pcwKO3ir76EN5MkpAQt0mcdYW9COuq23PorZdfOBgknbt2SPaUb
+\restrict IryrZvSFCxKFtWP64OcLVi5ZmyX7CFyHnLMNX43gTWKSQiCaE6Vu96sXv1R5f8d
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-1.pgdg24.04+2)
@@ -55,7 +55,8 @@ CREATE TABLE public.executions (
     block_graph jsonb NOT NULL,
     block_config jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    user_id uuid NOT NULL
 );
 
 
@@ -98,6 +99,13 @@ ALTER TABLE ONLY public."user"
 
 
 --
+-- Name: ix_executions_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_executions_user_id ON public.executions USING btree (user_id);
+
+
+--
 -- Name: ix_user_email; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -105,8 +113,16 @@ CREATE UNIQUE INDEX ix_user_email ON public."user" USING btree (email);
 
 
 --
+-- Name: executions fk_executions_user_id_user; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.executions
+    ADD CONSTRAINT fk_executions_user_id_user FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict AyXCgvsoYiR8pcwKO3ir76EN5MkpAQt0mcdYW9COuq23PorZdfOBgknbt2SPaUb
+\unrestrict IryrZvSFCxKFtWP64OcLVi5ZmyX7CFyHnLMNX43gTWKSQiCaE6Vu96sXv1R5f8d
 

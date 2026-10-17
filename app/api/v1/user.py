@@ -11,7 +11,7 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import config
+from app.core.config import config, logger
 from app.core.database import get_async_session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead, UserUpdate
@@ -32,7 +32,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         user: User,
         request: Request | None = None,
     ):
-        print(f"User {user.id} registered")
+        logger.info(f"User {user.id} registered")
 
 
 async def get_user_manager(

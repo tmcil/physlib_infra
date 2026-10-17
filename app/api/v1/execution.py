@@ -5,9 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
+from app.api.v1.user import current_active_user
 from app.core.database import engine
 from app.core.rabbitmq import mq_publish_execution
 from app.models.execution import Execution
+from app.models.user import User
 from app.schemas.execution import ExecutionCreate, ExecutionRead
 
 router = APIRouter(prefix="/executions", tags=["Executions"])
@@ -34,9 +36,12 @@ def get_session() -> Generator[Session, None, None]:
 def create_execution(
     execution_data: ExecutionCreate,
     session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(current_active_user),  # noqa: B008
 ):
     execution = Execution(
-        block_graph=execution_data.block_graph, block_config=execution_data.block_config
+        block_graph=execution_data.block_graph,
+        block_config=execution_data.block_config,
+        user_id=user.id,
     )
 
     session.add(execution)
@@ -65,8 +70,9 @@ def create_execution(
 @router.get("/", response_model=list[ExecutionRead])
 def get_executions(
     session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(current_active_user),  # noqa: B008
 ):
-    statement = select(Execution)
+    statement = select(Execution).where(Execution.user_id == user.id)
     return session.exec(statement).all()
 
 
@@ -82,8 +88,13 @@ def get_executions(
 def get_execution(
     execution_id: UUID,
     session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(current_active_user),  # noqa: B008
 ):
-    execution = session.get(Execution, execution_id)
+    statement = select(Execution).where(
+        Execution.id == execution_id,
+        Execution.user_id == user.id,
+    )
+    execution = session.exec(statement).first()
 
     if execution is None:
         raise HTTPException(
@@ -106,8 +117,13 @@ def get_execution(
 def delete_execution(
     execution_id: UUID,
     session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(current_active_user),  # noqa: B008
 ):
-    execution = session.get(Execution, execution_id)
+    statement = select(Execution).where(
+        Execution.id == execution_id,
+        Execution.user_id == user.id,
+    )
+    execution = session.exec(statement).first()
 
     if execution is None:
         raise HTTPException(
@@ -134,9 +150,13 @@ def delete_execution(
 def run_execution(
     execution_id: UUID,
     session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(current_active_user),  # noqa: B008
 ):
-
-    execution = session.get(Execution, execution_id)
+    statement = select(Execution).where(
+        Execution.id == execution_id,
+        Execution.user_id == user.id,
+    )
+    execution = session.exec(statement).first()
 
     if execution is None:
         raise HTTPException(
