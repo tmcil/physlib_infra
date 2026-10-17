@@ -7,7 +7,8 @@ from sqlmodel import Session, select
 
 from app.api.v1.user import current_active_user
 from app.core.database import engine
-from app.core.rabbitmq import mq_publish_execution
+from app.core.dependencies import get_rabbitmq_client
+from app.core.rabbitmq import RabbitMQClient
 from app.models.execution import Execution
 from app.models.user import User
 from app.schemas.execution import ExecutionCreate, ExecutionRead
@@ -33,10 +34,11 @@ def get_session() -> Generator[Session, None, None]:
         },
     },
 )
-def create_execution(
+async def create_execution(
     execution_data: ExecutionCreate,
     session: Session = Depends(get_session),  # noqa: B008
     user: User = Depends(current_active_user),  # noqa: B008
+    rabbitmq: RabbitMQClient = Depends(get_rabbitmq_client),  # noqa: B008
 ):
     execution = Execution(
         block_graph=execution_data.block_graph,
@@ -57,7 +59,7 @@ def create_execution(
         ) from exc
 
     try:
-        mq_publish_execution(execution.id)
+        await rabbitmq.publish_execution(execution.id)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -147,10 +149,11 @@ def delete_execution(
         },
     },
 )
-def run_execution(
+async def run_execution(
     execution_id: UUID,
     session: Session = Depends(get_session),  # noqa: B008
     user: User = Depends(current_active_user),  # noqa: B008
+    rabbitmq: RabbitMQClient = Depends(get_rabbitmq_client),  # noqa: B008
 ):
     statement = select(Execution).where(
         Execution.id == execution_id,
@@ -165,7 +168,7 @@ def run_execution(
         )
 
     try:
-        mq_publish_execution(execution.id)
+        await rabbitmq.publish_execution(execution.id)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

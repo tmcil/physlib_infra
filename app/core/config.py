@@ -46,7 +46,9 @@ class Config(BaseSettings):
     mqhost: str = os.getenv("RABBITMQ_HOST", "")
     mqusername: str = os.getenv("RABBITMQ_USERNAME", "")
     mqpassword: str = os.getenv("RABBITMQ_PASSWORD", "")
-    mqqueue: str = os.getenv("RABBITMQ_QUEUE", "")
+    mqexecutionqueue: str = os.getenv("RABBITMQ_EXECUTION_QUEUE", "")
+    mqresultqueue: str = os.getenv("RABBITMQ_RESULT_QUEUE", "")
+    mqlogqueue: str = os.getenv("RABBITMQ_LOG_QUEUE", "")
     mqport: int = int(os.getenv("RABBITMQ_PORT", "0"))
 
     # JWT auth

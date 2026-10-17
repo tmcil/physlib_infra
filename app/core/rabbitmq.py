@@ -1,54 +1,108 @@
 import json
+from collections.abc import Awaitable, Callable
+from typing import Any
 from uuid import UUID
 
-import pika
+import aio_pika
+from aio_pika import DeliveryMode, ExchangeType, Message
+from aio_pika.abc import AbstractIncomingMessage
 
 from app.core.config import config, logger
 
 
-def mq_publish_execution(execution_id: UUID) -> None:
-    credentials = pika.PlainCredentials(
-        config.mqusername,
-        config.mqpassword,
-    )
+class RabbitMQClient:
+    def __init__(self):
+        self.connection = None
+        self.publish_channel = None
+        self.consumer_channel = None
 
-    parameters = pika.ConnectionParameters(
-        host=config.mqhost,
-        port=config.mqport,
-        credentials=credentials,
-        heartbeat=30,
-        socket_timeout=5,
-        blocked_connection_timeout=5,
-        connection_attempts=10,
-        retry_delay=3,
-    )
+        self.execution_queue = config.mqexecutionqueue
+        self.log_queue = config.mqlogqueue
+        self.result_queue = config.mqresultqueue
 
-    with pika.BlockingConnection(parameters) as connection:
-        channel = connection.channel()
+    async def connect(self):
+        self.connection = await aio_pika.connect_robust(
+            host=config.mqhost,
+            port=config.mqport,
+            login=config.mqusername,
+            password=config.mqpassword,
+            heartbeat=30,
+            timeout=5,
+        )
 
-        # Ensure the queue exists and survives broker restarts
-        channel.queue_declare(
-            queue=config.mqqueue,
+        self.publish_channel = await self.connection.channel(
+            publisher_confirms=True,
+        )
+        self.consumer_channel = await self.connection.channel()
+
+        for queue_name in (
+            self.execution_queue,
+            self.log_queue,
+            self.result_queue,
+        ):
+            await self.publish_channel.declare_queue(
+                queue_name,
+                durable=True,
+            )
+
+        logger.info("Connected to RabbitMQ")
+
+    async def publish_execution(self, execution_id: UUID):
+        message = Message(
+            body=json.dumps({"execution_id": str(execution_id)}).encode("utf-8"),
+            content_type="application/json",
+            delivery_mode=DeliveryMode.PERSISTENT,
+        )
+
+        if self.publish_channel is None:
+            logger.error("Publish channel is not open")
+            raise RuntimeError("Publish channel is not open")
+
+        await self.publish_channel.default_exchange.publish(
+            message,
+            routing_key=self.execution_queue,
+        )
+
+        logger.info("Published execution to queue: %s", execution_id)
+
+    async def consume(
+        self,
+        queue_name: str,
+        handler,
+    ):
+        if self.consumer_channel is None:
+            logger.error("Consumer channel is not open")
+            raise RuntimeError("Consumer channel is not open")
+
+        queue = await self.consumer_channel.declare_queue(
+            queue_name,
             durable=True,
         )
 
-        # Wait for RabbitMQ to confirm published messages
-        channel.confirm_delivery()
+        await queue.consume(self._make_callback(handler))
 
-        message = json.dumps(
-            {
-                "execution_id": str(execution_id),
-            }
-        ).encode("utf-8")
+        logger.info("Consuming RabbitMQ queue: %s", queue_name)
 
-        channel.basic_publish(
-            exchange="",
-            routing_key=config.mqqueue,
-            body=message,
-            properties=pika.BasicProperties(
-                content_type="application/json",
-                delivery_mode=pika.DeliveryMode.Persistent,
-            ),
-        )
+    @staticmethod
+    def _make_callback(
+        handler: Callable[[dict[str, Any]], Awaitable[None]],
+    ):
+        async def callback(message: AbstractIncomingMessage) -> None:
+            async with message.process():
+                event = json.loads(message.body)
+                await handler(event)
 
-    logger.info(f"Published execution to queue: {execution_id!s}")
+        return callback
+
+    async def close(self):
+        if self.connection is not None and not self.connection.is_closed:
+            await self.connection.close()
+            logger.info("Disconnected from RabbitMQ")
+
+
+async def handle_log(event: dict):
+    logger.info("Received log event: %s", event)
+
+
+async def handle_result(event: dict):
+    logger.info("Received result event: %s", event)
