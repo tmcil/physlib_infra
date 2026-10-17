@@ -16,8 +16,6 @@ from app.core.database import get_async_session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 
-SECRET = config.auth_secret
-
 
 async def get_user_db(
     session: AsyncSession = Depends(get_async_session),  # noqa: B008
@@ -26,8 +24,8 @@ async def get_user_db(
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-    reset_password_token_secret = SECRET
-    verification_token_secret = SECRET
+    reset_password_token_secret = config.jwt_auth_secret
+    verification_token_secret = config.jwt_auth_secret
 
     async def on_after_register(
         self,
@@ -44,13 +42,13 @@ async def get_user_manager(
 
 
 bearer_transport = BearerTransport(
-    tokenUrl="auth/jwt/login",
+    tokenUrl="/api/v1/auth/jwt/login",
 )
 
 
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(
-        secret=SECRET,
+        secret=config.jwt_auth_secret,
         lifetime_seconds=3600,
     )
 

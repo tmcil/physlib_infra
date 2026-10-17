@@ -49,6 +49,9 @@ class Config(BaseSettings):
     mqqueue: str = os.getenv("RABBITMQ_QUEUE", "")
     mqport: int = int(os.getenv("RABBITMQ_PORT", "0"))
 
+    # JWT auth
+    jwt_auth_secret: str = os.getenv("JWT_AUTH_SECRET", "")
+
     @property
     def pgurl(self) -> str:
         return f"postgresql://{self.pguser}:{self.pgpassword}@{self.pghost}:{self.pgport}/{self.pgdatabase}"
