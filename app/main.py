@@ -5,21 +5,37 @@ from sqlmodel import SQLModel
 
 from app.api.v1.execution import router as execution_router
 from app.api.v1.user import auth_router, register_router, users_router
+from app.api.v1.websockets import ws_router
 from app.core.config import config
 from app.core.database import engine
+from app.core.rabbitmq import RabbitMQClient, handle_log, handle_result
 from app.models.execution import Execution  # Register the database model  # noqa: F401
+from app.models.user import User  # Register the database model  # noqa: F401
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Create the database tables
     SQLModel.metadata.create_all(engine)
-    yield
+
+    # Create the RabbitMQ client
+    mqclient = RabbitMQClient()
+    await mqclient.connect()
+    app.state.mqclient = mqclient
+
+    try:
+        await mqclient.consume(mqclient.log_queue, handle_log)
+        await mqclient.consume(mqclient.result_queue, handle_result)
+        yield
+    finally:
+        await mqclient.close()
 
 
 app = FastAPI(title=config.app_name, lifespan=lifespan)
 
 api_v1 = APIRouter(prefix="/api/v1")
 api_v1.include_router(execution_router)
+api_v1.include_router(ws_router)
 api_v1.include_router(
     auth_router,
     prefix="/auth/jwt",

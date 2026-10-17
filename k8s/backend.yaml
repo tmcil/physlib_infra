@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: thomasm012/backend:0.1.3
+          image: thomasm012/backend:0.1.4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
@@ -41,11 +41,21 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-secret
                   key: rabbitmq-password
-            - name: RABBITMQ_QUEUE
+            - name: RABBITMQ_EXECUTION_QUEUE
               valueFrom:
                 configMapKeyRef:
                   name: rabbitmq-config
-                  key: rabbitmq-queue
+                  key: rabbitmq-execution-queue
+            - name: RABBITMQ_LOG_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: rabbitmq-log-queue
+            - name: RABBITMQ_RESULT_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: rabbitmq-result-queue
 
             # PostgreSQL vars
             - name: PGHOST

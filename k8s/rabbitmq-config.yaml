@@ -3,7 +3,9 @@ kind: ConfigMap
 metadata:
   name: rabbitmq-config
 data:
-  rabbitmq-queue: opflow-queue
+  rabbitmq-execution-queue: executions-queue
+  rabbitmq-log-queue: logs-queue
+  rabbitmq-result-queue: results-queue
   rabbitmq-host: rabbitmq-service
   rabbitmq-port: "5672"
   enabled_plugins: |

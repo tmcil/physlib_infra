@@ -11,6 +11,8 @@ psycopg2-binary
 asyncpg
 alembic
 pika
+aio-pika
+websockets
 
 fastapi-users[sqalchemy]
 fastapi-users-db-sqlalchemy

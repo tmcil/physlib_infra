@@ -25,6 +25,11 @@ spec:
                 configMapKeyRef:
                   name: rabbitmq-config
                   key: rabbitmq-host
+            - name: RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: rabbitmq-port
             - name: RABBITMQ_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -35,11 +40,21 @@ spec:
                 secretKeyRef:
                   name: rabbitmq-secret
                   key: rabbitmq-password
-            - name: RABBITMQ_QUEUE
+            - name: RABBITMQ_EXECUTION_QUEUE
               valueFrom:
                 configMapKeyRef:
                   name: rabbitmq-config
-                  key: rabbitmq-queue
+                  key: rabbitmq-execution-queue
+            - name: RABBITMQ_LOG_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: rabbitmq-log-queue
+            - name: RABBITMQ_RESULT_QUEUE
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: rabbitmq-result-queue
 
             # PostgreSQL vars
             - name: PGHOST
