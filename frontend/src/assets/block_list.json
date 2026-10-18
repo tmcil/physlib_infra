@@ -1,0 +1,117 @@
+{
+    "blockGraph": [
+        {
+            "block": "BLOCK_INPUT_TIM",
+            "blockName": "Time Series Input",
+            "type": "input",
+            "ports": [
+                {
+                    "type": "TIM",
+                    "array": false,
+                    "portId": "interval",
+                    "optional": false,
+                    "direction": "output",
+                    "helpName": "",
+                    "helpMessage": "The time series that the TLE will be evaluated at using the SGP4 model."
+                }
+            ],
+            "config": {
+                "calendarInterval": [
+                    {
+                        "name": "start",
+                        "helpName": "Time Interval",
+                        "helpMessage": "",
+                        "value": {
+                            "start": "2026-10-14T12:00:00.000Z",
+                            "end": "2026-10-15T12:00:00.000Z"
+                        },
+                        "minimumValueDays": 0,
+                        "maximumValueDays": 7
+                    }
+                ],
+                "check": [
+                    {
+                        "name": "isSingle",
+                        "helpName": "Generate Singular Epoch",
+                        "helpMessage": "Only generate a single epoch, instead of an array.",
+                        "value": false
+                    }
+                ],
+                "combo": [],
+                "float": [
+                    {
+                        "name": "stepsizeSeconds",
+                        "helpName": "Step Size",
+                        "helpMessage": "The step size in seconds.",
+                        "value": 60,
+                        "units": "s",
+                        "minimumValue": 30,
+                        "maximumValue": 300
+                    }
+                ]
+            }
+        },
+        {
+            "block": "BLOCK_INPUT_TLE",
+            "blockName": "Two-Line Element Set Input",
+            "type": "input",
+            "ports": [
+                {
+                    "type": "TLE",
+                    "array": false,
+                    "portId": "tle",
+                    "optional": false,
+                    "direction": "output",
+                    "helpName": "",
+                    "helpMessage": ""
+                }
+            ],
+            "config": {
+                "calendarInterval": [],
+                "check": [],
+                "combo": [],
+                "float": []
+            }
+        },
+        {
+            "block": "BLOCK_SGP4",
+            "blockName": "SGP4 Block",
+            "type": "process",
+            "ports": [
+                {
+                    "type": "TIM",
+                    "array": false,
+                    "portId": "interval",
+                    "optional": false,
+                    "direction": "input",
+                    "helpName": "tlemsg",
+                    "helpMessage": "The time series that the TLE will be evaluated at using the SGP4 model."
+                },
+                {
+                    "type": "TLE",
+                    "array": false,
+                    "portId": "tle",
+                    "optional": false,
+                    "direction": "input",
+                    "helpName": "",
+                    "helpMessage": "The Two-Line Element set to be evaluated using the SGP4 model."
+                },
+                {
+                    "type": "EPH",
+                    "array": false,
+                    "portId": "ephemeris",
+                    "optional": true,
+                    "direction": "output",
+                    "helpName": "Ephemeris",
+                    "helpMessage": "Orbital ephemeris generated using the TLE evaluated at TIM using the SGP4 model."
+                }
+            ],
+            "config": {
+                "calendarInterval": [],
+                "check": [],
+                "combo": [],
+                "float": []
+            }
+        }
+    ]
+}
