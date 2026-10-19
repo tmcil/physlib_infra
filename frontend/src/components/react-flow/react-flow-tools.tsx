@@ -26,6 +26,7 @@ type BlockGraphItem = {
 
 type ReactFlowToolsProps = {
   blockGraph: BlockGraphItem[]
+  onSelectBlock: (block: string) => void
 }
 
 const blockGroups = [
@@ -34,7 +35,7 @@ const blockGroups = [
   { type: "output", heading: "Output Blocks" },
 ] as const
 
-function BlockCommand({ blockGraph }: ReactFlowToolsProps) {
+function BlockCommand({ blockGraph, onSelectBlock }: ReactFlowToolsProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -70,7 +71,14 @@ function BlockCommand({ blockGraph }: ReactFlowToolsProps) {
               return (
                 <CommandGroup key={type} heading={heading}>
                   {blocks.map((block) => (
-                    <CommandItem key={block.block} value={block.blockName}>
+                    <CommandItem
+                      key={block.block}
+                      value={block.blockName}
+                      onSelect={() => {
+                        onSelectBlock(block.block)
+                        setOpen(false)
+                      }}
+                    >
                       {block.blockName}
                     </CommandItem>
                   ))}
@@ -84,10 +92,13 @@ function BlockCommand({ blockGraph }: ReactFlowToolsProps) {
   )
 }
 
-export default function ReactFlowTools({ blockGraph }: ReactFlowToolsProps) {
+export default function ReactFlowTools({
+  blockGraph,
+  onSelectBlock,
+}: ReactFlowToolsProps) {
   return (
     <ButtonGroup aria-label="Canvas actions">
-      <BlockCommand blockGraph={blockGraph} />
+      <BlockCommand blockGraph={blockGraph} onSelectBlock={onSelectBlock} />
     </ButtonGroup>
   )
 }

@@ -24,8 +24,6 @@ export function BlockNode({ id, data }: NodeProps<BlockFlowNode>) {
   function handleConfigChange(config: BlockConfigDefinition) {
     updateNodeData(id, { config });
   }
-  
-  console.log("BlockFlowNode data:", data, id);
 
   return (
     <div className="relative min-w-50 rounded-sm border border-slate-400 bg-white px-3 py-2 text-slate-900 shadow-sm">
