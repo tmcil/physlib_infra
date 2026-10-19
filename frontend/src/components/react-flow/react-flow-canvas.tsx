@@ -45,6 +45,7 @@ export default function ReactFlowCanvas({
   return (
     <div ref={canvasRef} className="w-full h-full">
       <ReactFlow
+        className="react-flow-theme"
         nodes={nodes}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
