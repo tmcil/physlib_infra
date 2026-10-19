@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { SquarePlus } from "lucide-react"
+import { useReactFlow, type XYPosition } from "@xyflow/react"
+import type { RefObject } from "react"
 
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
@@ -12,11 +14,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
 
 type BlockGraphItem = {
   block: string
@@ -26,7 +23,8 @@ type BlockGraphItem = {
 
 type ReactFlowToolsProps = {
   blockGraph: BlockGraphItem[]
-  onSelectBlock: (block: string) => void
+  onSelectBlock: (block: string, position: XYPosition) => void
+  canvasRef: RefObject<HTMLDivElement | null>
 }
 
 const blockGroups = [
@@ -35,25 +33,39 @@ const blockGroups = [
   { type: "output", heading: "Output Blocks" },
 ] as const
 
-function BlockCommand({ blockGraph, onSelectBlock }: ReactFlowToolsProps) {
+function BlockCommand({
+  blockGraph,
+  onSelectBlock,
+  canvasRef,
+}: ReactFlowToolsProps) {
   const [open, setOpen] = useState(false)
+  const { screenToFlowPosition } = useReactFlow()
+
+  function handleSelectBlock(blockName: string) {
+    const canvasElement = canvasRef.current
+    if (!canvasElement) {
+      throw new Error("Cannot add a block because the React Flow canvas is unavailable")
+    }
+
+    const bounds = canvasElement.getBoundingClientRect()
+    const position = screenToFlowPosition({
+      x: bounds.left + bounds.width / 2,
+      y: bounds.top + bounds.height / 2,
+    })
+    onSelectBlock(blockName, position)
+  }
 
   return (
     <>
-      <HoverCard>
-        <HoverCardTrigger>
-          <Button
-            variant="secondary"
-            size="default"
-            aria-label="Add block"
-            onClick={() => setOpen(true)}
-          >
-            <SquarePlus data-icon="inline-start" color="#0ba800" />
-            Add block
-          </Button>
-        </HoverCardTrigger>
-        <HoverCardContent>Add block</HoverCardContent>
-      </HoverCard>
+      <Button
+        variant="secondary"
+        size="default"
+        aria-label="Add block"
+        onClick={() => setOpen(true)}
+      >
+        <SquarePlus data-icon="inline-start" color="#0ba800" />
+        Add block
+      </Button>
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
@@ -75,7 +87,7 @@ function BlockCommand({ blockGraph, onSelectBlock }: ReactFlowToolsProps) {
                       key={block.block}
                       value={block.blockName}
                       onSelect={() => {
-                        onSelectBlock(block.block)
+                        handleSelectBlock(block.block)
                         setOpen(false)
                       }}
                     >
@@ -95,10 +107,15 @@ function BlockCommand({ blockGraph, onSelectBlock }: ReactFlowToolsProps) {
 export default function ReactFlowTools({
   blockGraph,
   onSelectBlock,
+  canvasRef,
 }: ReactFlowToolsProps) {
   return (
     <ButtonGroup aria-label="Canvas actions">
-      <BlockCommand blockGraph={blockGraph} onSelectBlock={onSelectBlock} />
+      <BlockCommand
+        blockGraph={blockGraph}
+        onSelectBlock={onSelectBlock}
+        canvasRef={canvasRef}
+      />
     </ButtonGroup>
   )
 }

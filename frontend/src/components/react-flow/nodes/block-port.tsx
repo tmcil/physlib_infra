@@ -22,7 +22,7 @@ export function BlockPort({ type, array, portId, optional, direction, helpName, 
     const portType: HandleType = direction === "input" ? "target" : "source";
     const portPosition: Position = direction === "input" ? Position.Left : Position.Right;
     const portClassName: string = direction === "input" ? "!left-[-13px] !h-2 !w-2" : "!right-[-13px] !h-2 !w-2";
-    const portNoHoverClassName: string = direction === "input" ? "ml-1 text-slate-500" : "mr-1 text-slate-500";
+    const portNoHoverClassName: string = direction === "input" ? "ml-1 text-muted-foreground" : "mr-1 text-muted-foreground";
     const portHelpNameClassName: string = direction === "input" ? "ml-1" : "mr-1";
 
     return (
@@ -31,14 +31,14 @@ export function BlockPort({ type, array, portId, optional, direction, helpName, 
                 id={portId}
                 type={portType}
                 position={portPosition}
-                className={portClassName}
+                className={`${portClassName} !border-2 !border-background !bg-primary`}
             />
             {direction === "input" ? (
                 <>
                     {helpMessage?.trim() ? (
                         <HoverCard>
                             <HoverCardTrigger>
-                                <span className="ml-1 cursor-help text-slate-500">{type}</span>
+                                <span className="ml-1 cursor-help text-muted-foreground">{type}</span>
                             </HoverCardTrigger>
                             <HoverCardContent>
                                 <div className="font-semibold">{type}</div>
@@ -59,7 +59,7 @@ export function BlockPort({ type, array, portId, optional, direction, helpName, 
                     {helpMessage?.trim() ? (
                         <HoverCard>
                             <HoverCardTrigger>
-                                <span className="mr-1 cursor-help text-slate-500">{type}</span>
+                                <span className="mr-1 cursor-help text-muted-foreground">{type}</span>
                             </HoverCardTrigger>
                             <HoverCardContent>
                                 <div className="font-semibold">{type}</div>

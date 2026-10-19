@@ -2,6 +2,7 @@ import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { BlockPort } from "./block-port";
 import type { BlockPortDefinition } from "./block-port";
 import { BlockConfig, type BlockConfigDefinition } from "./block-config";
+import { cn } from "@/lib/utils";
 
 export type BlockDefinition = {
   block: string;
@@ -13,7 +14,7 @@ export type BlockDefinition = {
 
 export type BlockFlowNode = Node<BlockDefinition, "block">;
 
-export function BlockNode({ id, data }: NodeProps<BlockFlowNode>) {
+export function BlockNode({ id, data, selected }: NodeProps<BlockFlowNode>) {
   const { updateNodeData } = useReactFlow<BlockFlowNode>();
   const inputs = data.ports.filter((port) => port.direction === "input");
   const outputs = data.ports.filter((port) => port.direction === "output");
@@ -26,11 +27,18 @@ export function BlockNode({ id, data }: NodeProps<BlockFlowNode>) {
   }
 
   return (
-    <div className="relative min-w-50 rounded-sm border border-slate-400 bg-white px-3 py-2 text-slate-900 shadow-sm">
-      <span className="absolute left-1 top-0.5 max-w-[90%] truncate text-[9px] leading-none text-slate-500">
+    <div
+      className={cn(
+        "relative min-w-50 rounded-sm border bg-card px-3 py-2 text-card-foreground shadow-sm transition-shadow",
+        selected
+          ? "border-primary ring-2 ring-primary ring-offset-2 ring-offset-background"
+          : "border-border"
+      )}
+    >
+      <span className="absolute left-1 top-0.5 max-w-[90%] truncate text-[9px] leading-none text-muted-foreground">
         {id.split("-")[0]}
       </span>
-      <span className="absolute right-0 top-0 max-w-[90%] truncate text-[9px] leading-none text-slate-500">
+      <span className="absolute right-0 top-0 max-w-[90%] truncate text-[9px] leading-none text-muted-foreground">
         <BlockConfig
           data={data.config}
           block_name={data.blockName}

@@ -5,6 +5,7 @@ import {
   useNodesState,
   type Edge,
   type OnConnect,
+  type XYPosition,
 } from "@xyflow/react"
 import { v4 as uuid4 } from "uuid"
 
@@ -12,24 +13,9 @@ import blockList from "@/assets/block_list.json"
 import { initialEdges } from "./edges"
 import type { AppNode, BlockFlowNode } from "./nodes"
 import ReactFlowCanvas from "./react-flow-canvas"
-import ReactFlowTools from "./react-flow-tools"
-
-function createInitialNode(): AppNode {
-  const block = blockList.blockGraph.find((item) => item.block === "BLOCK_INPUT_TIM")
-  if (!block) {
-    throw new Error('Block "BLOCK_SGP4" was not found in block_list.json')
-  }
-
-  return {
-    id: uuid4(),
-    type: "block",
-    position: { x: 300, y: 100 },
-    data: block,
-  }
-}
 
 export default function ReactFlowEditor() {
-  const [initialNodes] = useState<AppNode[]>(() => [createInitialNode()])
+  const [initialNodes] = useState<AppNode[]>(() => [])
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges)
 
@@ -38,27 +24,23 @@ export default function ReactFlowEditor() {
     [setEdges]
   )
 
-  const handleAddBlock = useCallback((blockName: string) => {
+  const handleAddBlock = useCallback((blockName: string, position: XYPosition) => {
     const block = blockList.blockGraph.find((item) => item.block === blockName)
     if (!block) {
       throw new Error(`Block "${blockName}" was not found in block_list.json`)
     }
 
     setNodes((currentNodes) => {
-      const newNodeCount = currentNodes.length - initialNodes.length
       const newNode: BlockFlowNode = {
         id: uuid4(),
         type: "block",
-        position: {
-          x: 100 + ((newNodeCount + 1) % 4) * 300,
-          y: 100 + Math.floor(newNodeCount / 4) * 220,
-        },
+        position,
         data: structuredClone(block),
       }
 
       return [...currentNodes, newNode]
     })
-  }, [initialNodes.length, setNodes])
+  }, [setNodes])
   
   console.log("nodes:", nodes);
   console.log("edges:", edges);
@@ -71,13 +53,9 @@ export default function ReactFlowEditor() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        blockGraph={blockList.blockGraph}
+        onAddBlock={handleAddBlock}
       />
-      <div className="absolute left-3 top-3 z-10">
-        <ReactFlowTools
-          blockGraph={blockList.blockGraph}
-          onSelectBlock={handleAddBlock}
-        />
-      </div>
     </div>
   )
 }
