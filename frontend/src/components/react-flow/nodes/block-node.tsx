@@ -1,17 +1,4 @@
-import { type Node, type NodeProps } from "@xyflow/react";
-import { Settings2 } from "lucide-react"
-
-import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
+import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { BlockPort } from "./block-port";
 import type { BlockPortDefinition } from "./block-port";
 import { BlockConfig, type BlockConfigDefinition } from "./block-config";
@@ -27,13 +14,18 @@ export type BlockDefinition = {
 export type BlockFlowNode = Node<BlockDefinition, "block">;
 
 export function BlockNode({ id, data }: NodeProps<BlockFlowNode>) {
+  const { updateNodeData } = useReactFlow<BlockFlowNode>();
   const inputs = data.ports.filter((port) => port.direction === "input");
   const outputs = data.ports.filter((port) => port.direction === "output");
   const title = data.block.startsWith("BLOCK_")
     ? data.block.slice("BLOCK_".length)
     : data.block;
 
-  console.log("BlockFlowNode data:", data);
+  function handleConfigChange(config: BlockConfigDefinition) {
+    updateNodeData(id, { config });
+  }
+  
+  console.log("BlockFlowNode data:", data, id);
 
   return (
     <div className="relative min-w-50 rounded-sm border border-slate-400 bg-white px-3 py-2 text-slate-900 shadow-sm">
@@ -41,17 +33,12 @@ export function BlockNode({ id, data }: NodeProps<BlockFlowNode>) {
         {id.split("-")[0]}
       </span>
       <span className="absolute right-0 top-0 max-w-[90%] truncate text-[9px] leading-none text-slate-500">
-{/*         <Popover>
-          <PopoverTrigger render={<Button variant="ghost" size="icon-sm"><Settings2 strokeWidth={2}></Settings2></Button>}></PopoverTrigger>
-          <PopoverContent>
-            <PopoverHeader>
-              <PopoverTitle>{data.blockName} Configuration</PopoverTitle>
-              <PopoverDescription>{id.split("-")[0]}</PopoverDescription>
-            </PopoverHeader>
-            <Separator />
-          </PopoverContent>
-        </Popover> */}
-       {BlockConfig({ data: data.config, block_name: data.blockName, id: id })}
+        <BlockConfig
+          data={data.config}
+          block_name={data.blockName}
+          id={id}
+          onChange={handleConfigChange}
+        />
       </span>
       <div className="mb-2 text-center text-sm font-semibold">{title}</div>
       <div className="grid grid-cols-2 gap-4 text-xs">

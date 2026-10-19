@@ -16,17 +16,22 @@
                 }
             ],
             "config": {
-                "calendarInterval": [
+                "dateandtime": [
                     {
                         "name": "start",
-                        "helpName": "Time Interval",
-                        "helpMessage": "",
-                        "value": {
-                            "start": "2026-10-14T12:00:00.000Z",
-                            "end": "2026-10-15T12:00:00.000Z"
-                        },
-                        "minimumValueDays": 0,
-                        "maximumValueDays": 7
+                        "helpName": "Start Time",
+                        "helpMessage": "The start time of the time interval.",
+                        "value": "2026-10-14T12:00:00.000Z",
+                        "disableIf": null,
+                        "enableIf": null
+                    },
+                    {
+                        "name": "end",
+                        "helpName": "End Time",
+                        "helpMessage": "The end time of the time interval.",
+                        "value": "2026-10-15T12:00:00.000Z",
+                        "disableIf": "isSingle",
+                        "enableIf": null
                     }
                 ],
                 "check": [
@@ -34,10 +39,14 @@
                         "name": "isSingle",
                         "helpName": "Generate Singular Epoch",
                         "helpMessage": "Only generate a single epoch, instead of an array.",
-                        "value": false
+                        "value": false,
+                        "disableIf": null,
+                        "enableIf": null
                     }
                 ],
+                "string": [],
                 "combo": [],
+                "integer": [],
                 "float": [
                     {
                         "name": "stepsizeSeconds",
@@ -46,7 +55,9 @@
                         "value": 60,
                         "units": "s",
                         "minimumValue": 30,
-                        "maximumValue": 300
+                        "maximumValue": 300,
+                        "disableIf": "isSingle",
+                        "enableIf": null
                     }
                 ]
             }
@@ -67,9 +78,33 @@
                 }
             ],
             "config": {
-                "calendarInterval": [],
+                "dateandtime": [],
                 "check": [],
+                "string": [
+                    {
+                        "name": "line1",
+                        "helpName": "TLE Line 1",
+                        "helpMessage": "The first line of the TLE. This should be exactly 69 characters long.",
+                        "value": "1 00005U 58002B   26277.81742469  .00000374  00000-0  45153-3 0  9990",
+                        "minimumLength": 10,
+                        "maximumLength": 100,
+                        "disableIf": null,
+                        "enableIf": null
+                    },
+                    {
+                        "name": "line2",
+                        "helpName": "TLE Line 2",
+                        "helpMessage": "The second line of the TLE. This should be exactly 69 characters long.",
+                        "value": "2 00005  34.2618 335.9657 1839097 272.8607  66.4089 10.86066529455200",
+                        "minimumLength": 69,
+                        "maximumLength": 69,
+                        "disableIf": null,
+                        "enableIf": null
+                    }
+                ],
                 "combo": [],
+                "integer": [
+                ],
                 "float": []
             }
         },
@@ -107,9 +142,37 @@
                 }
             ],
             "config": {
-                "calendarInterval": [],
+                "dateandtime": [],
                 "check": [],
-                "combo": [],
+                "string": [],
+                "combo": [
+                    {
+                        "name": "wgsModel",
+                        "helpName": "WGS Model",
+                        "helpMessage": "The World Geodetic System - a set of constant parameters that describe the reference ellipsoid of the Earth.",
+                        "value": 3,
+                        "options": [
+                            {
+                                "name": "WGS-72 (Old)",
+                                "value": 1,
+                                "helpMessage": "WGS-72 low-precision model - Legacy model defined in 1972 in 'Spacetrack Report #3'. Not recommended for use unless required for data comparisons with legacy systems."
+                            },
+                            {
+                                "name": "WGS-72",
+                                "value": 2,
+                                "helpMessage": "WGS-72 model - original 72 model refined in 2006 in 'Spacetrack Report #3: Rev 2.' Designed to mitigate ephemeris differences between WGS-72 and WGS-84."
+                            },
+                            {
+                                "name": "WGS-84",
+                                "value": 3,
+                                "helpMessage": "WGS-84 model - latest model defined in 1984. Recommended for highest accurary state vectors."
+                            }
+                        ],
+                        "disableIf": null,
+                        "enableIf": null
+                    }
+                ],
+                "integer": [],
                 "float": []
             }
         }
