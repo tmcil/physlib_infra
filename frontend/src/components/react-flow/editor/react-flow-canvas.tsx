@@ -1,46 +1,33 @@
 import "@xyflow/react/dist/style.css";
-import { useRef } from "react"
+import type { RefObject } from "react"
 import {
   Background,
-  Panel,
   ReactFlow,
   type OnConnect,
   type OnEdgesChange,
   type OnNodesChange,
-  type XYPosition,
 } from "@xyflow/react";
 
-import { nodeTypes, type AppNode } from "./nodes/index";
-import { edgeTypes, type BlockEdge } from "./edges/index";
-import ReactFlowTools from "./react-flow-tools";
-
-type BlockGraphItem = {
-  block: string
-  blockName: string
-  type: string
-}
+import { nodeTypes, type AppNode } from "../nodes/index";
+import { edgeTypes, type BlockEdge } from "../edges/index";
 
 type ReactFlowCanvasProps = {
+  canvasRef: RefObject<HTMLDivElement | null>
   nodes: AppNode[]
   edges: BlockEdge[]
   onNodesChange: OnNodesChange<AppNode>
   onEdgesChange: OnEdgesChange<BlockEdge>
   onConnect: OnConnect
-  blockGraph: BlockGraphItem[]
-  onAddBlock: (blockName: string, position: XYPosition) => void
 }
 
 export default function ReactFlowCanvas({
+  canvasRef,
   nodes,
   edges,
   onNodesChange,
   onEdgesChange,
   onConnect,
-  blockGraph,
-  onAddBlock,
 }: ReactFlowCanvasProps) {
-  const canvasRef = useRef<HTMLDivElement>(null)
-
   return (
     <div ref={canvasRef} className="w-full h-full">
       <ReactFlow
@@ -57,13 +44,6 @@ export default function ReactFlowCanvas({
         fitView
       >
         <Background />
-        <Panel position="top-left">
-          <ReactFlowTools
-            blockGraph={blockGraph}
-            onSelectBlock={onAddBlock}
-            canvasRef={canvasRef}
-          />
-        </Panel>
       </ReactFlow>
     </div>
   );

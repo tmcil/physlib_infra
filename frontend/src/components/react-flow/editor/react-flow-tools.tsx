@@ -1,10 +1,12 @@
 import { useState } from "react"
-import { SquarePlus } from "lucide-react"
+import { SquarePlus, Trash2 } from "lucide-react"
 import { useReactFlow, type XYPosition } from "@xyflow/react"
 import type { RefObject } from "react"
 
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
+import { Progress } from "@/components/ui/progress"
+import type { CompilationIssue } from "./compile"
 import {
   Command,
   CommandDialog,
@@ -24,8 +26,27 @@ type BlockGraphItem = {
 type ReactFlowToolsProps = {
   blockGraph: BlockGraphItem[]
   onSelectBlock: (block: string, position: XYPosition) => void
+  onClearGraph: () => void
+  onCompile: () => void
+  compilationStatus: "idle" | "compiling" | "success" | "failed"
+  compilationIssues: CompilationIssue[]
+  isCompiled: boolean
   canvasRef: RefObject<HTMLDivElement | null>
 }
+
+type BlockCommandProps = Omit<
+  ReactFlowToolsProps,
+  | "onCompile"
+  | "onClearGraph"
+  | "compilationStatus"
+  | "compilationIssues"
+  | "isCompiled"
+>
+
+type CompilationFeedbackProps = Pick<
+  ReactFlowToolsProps,
+  "compilationStatus" | "compilationIssues"
+>
 
 const blockGroups = [
   { type: "input", heading: "Input Blocks" },
@@ -37,7 +58,7 @@ function BlockCommand({
   blockGraph,
   onSelectBlock,
   canvasRef,
-}: ReactFlowToolsProps) {
+}: BlockCommandProps) {
   const [open, setOpen] = useState(false)
   const { screenToFlowPosition } = useReactFlow()
 
@@ -104,18 +125,82 @@ function BlockCommand({
   )
 }
 
+function CompilationFeedback({
+  compilationStatus,
+  compilationIssues,
+}: CompilationFeedbackProps) {
+  if (compilationStatus === "idle") {
+    return null
+  }
+
+  return (
+    <>
+      <Progress
+        value={compilationStatus === "compiling" ? 35 : 100}
+        aria-label="Graph compilation"
+        className={`w-full gap-0 [&_[data-slot=progress-track]]:h-1.5 ${
+          compilationStatus === "compiling"
+            ? "[&_[data-slot=progress-indicator]]:animate-pulse"
+            : compilationStatus === "failed"
+              ? "[&_[data-slot=progress-indicator]]:bg-destructive"
+              : "[&_[data-slot=progress-indicator]]:bg-green-600"
+        }`}
+      />
+      {compilationStatus === "failed" && (
+        <details className="w-full rounded-md border bg-background text-sm">
+          <summary className="cursor-pointer px-2 py-1 font-medium">
+            Compilation errors ({compilationIssues.length})
+          </summary>
+          <pre className="max-h-48 overflow-auto border-t bg-muted p-2 font-mono text-xs whitespace-pre-wrap">
+            {compilationIssues.map((issue) => issue.message).join("\n")}
+          </pre>
+        </details>
+      )}
+    </>
+  )
+}
+
 export default function ReactFlowTools({
   blockGraph,
   onSelectBlock,
+  onClearGraph,
+  onCompile,
+  compilationStatus,
+  compilationIssues,
+  isCompiled,
   canvasRef,
 }: ReactFlowToolsProps) {
   return (
-    <ButtonGroup aria-label="Canvas actions">
-      <BlockCommand
-        blockGraph={blockGraph}
-        onSelectBlock={onSelectBlock}
-        canvasRef={canvasRef}
+    <div className="flex w-max flex-col gap-1">
+      <ButtonGroup aria-label="Canvas actions">
+        <ButtonGroup>
+          <BlockCommand
+            blockGraph={blockGraph}
+            onSelectBlock={onSelectBlock}
+            canvasRef={canvasRef}
+          />
+          <Button variant="secondary" aria-label="Clear graph" onClick={onClearGraph}>
+            <Trash2 data-icon="inline-start" color="#db0000" />
+            Clear
+          </Button>
+        </ButtonGroup>
+        <ButtonGroup className="hidden sm:block">
+          <Button
+            variant="secondary"
+            onClick={onCompile}
+            disabled={compilationStatus === "compiling" || isCompiled}
+          >
+            {compilationStatus === "compiling" ? "Compiling..." : "Compile"}
+          </Button>
+          <Button variant="default" disabled={!isCompiled}>
+            Run
+          </Button>
+        </ButtonGroup>
+      </ButtonGroup>
+      <CompilationFeedback
+        compilationStatus={compilationStatus}
+        compilationIssues={compilationIssues}
       />
-    </ButtonGroup>
+    </div>
   )
 }
