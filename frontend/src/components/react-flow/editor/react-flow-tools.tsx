@@ -28,9 +28,12 @@ type ReactFlowToolsProps = {
   onSelectBlock: (block: string, position: XYPosition) => void
   onClearGraph: () => void
   onCompile: () => void
+  onRun: () => void
   compilationStatus: "idle" | "compiling" | "success" | "failed"
   compilationIssues: CompilationIssue[]
   isCompiled: boolean
+  isRunning: boolean
+  runError: string | null
   canvasRef: RefObject<HTMLDivElement | null>
 }
 
@@ -41,6 +44,9 @@ type BlockCommandProps = Omit<
   | "compilationStatus"
   | "compilationIssues"
   | "isCompiled"
+  | "onRun"
+  | "isRunning"
+  | "runError"
 >
 
 type CompilationFeedbackProps = Pick<
@@ -165,9 +171,12 @@ export default function ReactFlowTools({
   onSelectBlock,
   onClearGraph,
   onCompile,
+  onRun,
   compilationStatus,
   compilationIssues,
   isCompiled,
+  isRunning,
+  runError,
   canvasRef,
 }: ReactFlowToolsProps) {
   return (
@@ -192,11 +201,20 @@ export default function ReactFlowTools({
           >
             {compilationStatus === "compiling" ? "Compiling..." : "Compile"}
           </Button>
-          <Button variant="default" disabled={!isCompiled}>
-            Run
+          <Button
+            variant="default"
+            onClick={onRun}
+            disabled={!isCompiled || isRunning}
+          >
+            {isRunning ? "Running..." : "Run"}
           </Button>
         </ButtonGroup>
       </ButtonGroup>
+      {runError && (
+        <p role="alert" className="max-w-sm rounded-md border border-destructive bg-background p-2 text-xs text-destructive">
+          {runError}
+        </p>
+      )}
       <CompilationFeedback
         compilationStatus={compilationStatus}
         compilationIssues={compilationIssues}

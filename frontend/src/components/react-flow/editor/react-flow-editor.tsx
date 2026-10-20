@@ -28,6 +28,9 @@ type ReactFlowEditorProps = {
   onConnect: OnConnect
   onAddBlock: (blockName: string, position: XYPosition) => void
   onClearGraph: () => void
+  onRun: () => void
+  isRunning: boolean
+  runError: string | null
 }
 
 export default function ReactFlowEditor({
@@ -38,6 +41,9 @@ export default function ReactFlowEditor({
   onConnect,
   onAddBlock,
   onClearGraph,
+  onRun,
+  isRunning,
+  runError,
 }: ReactFlowEditorProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const compileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -114,9 +120,12 @@ export default function ReactFlowEditor({
             onSelectBlock={onAddBlock}
             onClearGraph={handleClearGraph}
             onCompile={handleCompile}
+            onRun={onRun}
             compilationStatus={compilationStatus}
             compilationIssues={compilationIssues}
             isCompiled={isCompiled}
+            isRunning={isRunning}
+            runError={runError}
             canvasRef={canvasRef}
           />
         </div>

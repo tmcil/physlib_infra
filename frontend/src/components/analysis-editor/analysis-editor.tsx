@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { useCallback, useState } from "react"
 import {
     addEdge,
     useEdgesState,
@@ -12,10 +12,13 @@ import blockList from "@/assets/block_list.json"
 import ReactFlowEditor from "@/components/react-flow/editor/react-flow-editor"
 import type { BlockEdge } from "@/components/react-flow/edges"
 import type { AppNode, BlockFlowNode } from "@/components/react-flow/nodes"
+import { submitExecution } from "@/lib/execution-api"
 
 export default function AnalysisEditor() {
     const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([])
     const [edges, setEdges, onEdgesChange] = useEdgesState<BlockEdge>([])
+    const [isRunning, setIsRunning] = useState(false)
+    const [runError, setRunError] = useState<string | null>(null)
 
     const onConnect: OnConnect = useCallback(
         (connection) => {
@@ -71,7 +74,26 @@ export default function AnalysisEditor() {
     const handleClearGraph = useCallback(() => {
         setNodes([])
         setEdges([])
+        setRunError(null)
     }, [setEdges, setNodes])
+
+    const handleRun = useCallback(async () => {
+        if (isRunning) {
+            return
+        }
+
+        setIsRunning(true)
+        setRunError(null)
+        try {
+            await submitExecution({ nodes, edges })
+        } catch (error) {
+            setRunError(
+                error instanceof Error ? error.message : "Failed to schedule analysis."
+            )
+        } finally {
+            setIsRunning(false)
+        }
+    }, [edges, isRunning, nodes])
 
     console.log("nodes:", nodes);
     console.log("edges:", edges);
@@ -86,6 +108,9 @@ export default function AnalysisEditor() {
                 onConnect={onConnect}
                 onAddBlock={handleAddBlock}
                 onClearGraph={handleClearGraph}
+                onRun={handleRun}
+                isRunning={isRunning}
+                runError={runError}
             />
         </div>
     )
