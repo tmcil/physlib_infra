@@ -4,7 +4,6 @@ import {
   Background,
   Panel,
   ReactFlow,
-  type Edge,
   type OnConnect,
   type OnEdgesChange,
   type OnNodesChange,
@@ -12,7 +11,7 @@ import {
 } from "@xyflow/react";
 
 import { nodeTypes, type AppNode } from "./nodes/index";
-import { edgeTypes } from "./edges/index";
+import { edgeTypes, type BlockEdge } from "./edges/index";
 import ReactFlowTools from "./react-flow-tools";
 
 type BlockGraphItem = {
@@ -23,9 +22,9 @@ type BlockGraphItem = {
 
 type ReactFlowCanvasProps = {
   nodes: AppNode[]
-  edges: Edge[]
+  edges: BlockEdge[]
   onNodesChange: OnNodesChange<AppNode>
-  onEdgesChange: OnEdgesChange<Edge>
+  onEdgesChange: OnEdgesChange<BlockEdge>
   onConnect: OnConnect
   blockGraph: BlockGraphItem[]
   onAddBlock: (blockName: string, position: XYPosition) => void

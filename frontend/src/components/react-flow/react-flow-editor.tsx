@@ -3,25 +3,54 @@ import {
   addEdge,
   useEdgesState,
   useNodesState,
-  type Edge,
   type OnConnect,
   type XYPosition,
 } from "@xyflow/react"
 import { v4 as uuid4 } from "uuid"
 
 import blockList from "@/assets/block_list.json"
-import { initialEdges } from "./edges"
+import { initialEdges, type BlockEdge } from "./edges"
 import type { AppNode, BlockFlowNode } from "./nodes"
 import ReactFlowCanvas from "./react-flow-canvas"
 
 export default function ReactFlowEditor() {
   const [initialNodes] = useState<AppNode[]>(() => [])
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges)
+  const [edges, setEdges, onEdgesChange] = useEdgesState<BlockEdge>(initialEdges)
 
   const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((currentEdges) => addEdge(connection, currentEdges)),
-    [setEdges]
+    (connection) => {
+      const sourceNode = nodes.find(
+        (node): node is BlockFlowNode =>
+          node.id === connection.source && node.type === "block"
+      )
+      const targetNode = nodes.find(
+        (node): node is BlockFlowNode =>
+          node.id === connection.target && node.type === "block"
+      )
+      const sourcePort = sourceNode?.data.ports.find(
+        (port) => port.portId === connection.sourceHandle && port.direction === "output"
+      )
+      const targetPort = targetNode?.data.ports.find(
+        (port) => port.portId === connection.targetHandle && port.direction === "input"
+      )
+
+      if (!sourcePort || !targetPort) {
+        throw new Error("Could not find the source and target ports for this connection")
+      }
+
+      setEdges((currentEdges) =>
+        addEdge(
+          {
+            ...connection,
+            sourcePortType: sourcePort.type,
+            targetPortType: targetPort.type,
+          },
+          currentEdges
+        )
+      )
+    },
+    [nodes, setEdges]
   )
 
   const handleAddBlock = useCallback((blockName: string, position: XYPosition) => {
