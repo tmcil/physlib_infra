@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict IryrZvSFCxKFtWP64OcLVi5ZmyX7CFyHnLMNX43gTWKSQiCaE6Vu96sXv1R5f8d
+\restrict 1757hXdRpuoh0aXpQWmOdZ9DS3kWsPUcfumyrMWxYvCe1JItKxlgAbtzDb1YfEu
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-1.pgdg24.04+2)
@@ -53,10 +53,10 @@ CREATE TABLE public.executions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     status public.executionstatus DEFAULT 'CREATED'::public.executionstatus NOT NULL,
     block_graph jsonb NOT NULL,
-    block_config jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    user_id uuid NOT NULL
+    user_id uuid NOT NULL,
+    name character varying(255) DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -124,5 +124,5 @@ ALTER TABLE ONLY public.executions
 -- PostgreSQL database dump complete
 --
 
-\unrestrict IryrZvSFCxKFtWP64OcLVi5ZmyX7CFyHnLMNX43gTWKSQiCaE6Vu96sXv1R5f8d
+\unrestrict 1757hXdRpuoh0aXpQWmOdZ9DS3kWsPUcfumyrMWxYvCe1JItKxlgAbtzDb1YfEu
 

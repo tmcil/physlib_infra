@@ -6,10 +6,11 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
-from sqlmodel import create_engine
+from sqlmodel import SQLModel, create_engine
 
 from .config import config, logger
 
+logger.info(f"Connecting to postgres via URL: {config.pgurl}")
 engine = create_engine(config.pgurl)
 logger.info(f"Connected to postgres via URL: {config.pgurl}")
 
@@ -17,7 +18,7 @@ logger.info(f"Connected to postgres via URL: {config.pgurl}")
 
 
 class Base(DeclarativeBase):
-    pass
+    metadata = SQLModel.metadata
 
 
 async_engine = create_async_engine(
