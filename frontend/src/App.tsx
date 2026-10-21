@@ -1,9 +1,12 @@
-import AnalysisEditor from "@/components/analysis-editor/analysis-editor"
+import PublicEditor from "@/components/public-editor/public-editor"
 
 export function App() {
   return (
     <div className="flex min-h-svh items-center justify-center p-6">
-      <AnalysisEditor />
+      <PublicEditor
+        executionId="97eda8fb-b294-4ca1-be33-3d0da4cbf280"
+        executionName="Test Execution"
+      />
     </div>
   )
 }

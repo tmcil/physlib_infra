@@ -152,7 +152,7 @@ function CompilationFeedback({
               : "[&_[data-slot=progress-indicator]]:bg-green-600"
         }`}
       />
-      {compilationStatus === "failed" && (
+      {compilationStatus === "failed" && compilationIssues.length > 0 && (
         <details className="w-full rounded-md border bg-background text-sm">
           <summary className="cursor-pointer px-2 py-1 font-medium">
             Compilation errors ({compilationIssues.length})
@@ -212,7 +212,7 @@ export default function ReactFlowTools({
       </ButtonGroup>
       {runError && (
         <p role="alert" className="max-w-sm rounded-md border border-destructive bg-background p-2 text-xs text-destructive">
-          {runError}
+          A Connection Error has occurred.
         </p>
       )}
       <CompilationFeedback

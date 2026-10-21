@@ -24,6 +24,8 @@ export type CompilationResult = {
   issues: CompilationIssue[]
 }
 
+export type CompilationStatus = "idle" | "compiling" | "success" | "failed"
+
 export function getGraphFingerprint(nodes: AppNode[], edges: BlockEdge[]): string {
   return JSON.stringify({
     nodes: nodes.map((node) => ({
