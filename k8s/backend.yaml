@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: thomasm012/backend:0.1.4
+          image: thomasm012/backend:0.1.5
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
