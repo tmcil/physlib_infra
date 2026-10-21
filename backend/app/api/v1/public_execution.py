@@ -11,7 +11,7 @@ from app.core.rabbitmq import RabbitMQClient
 from app.models.execution import Execution
 from app.schemas.execution import ExecutionCreate, ExecutionRead, ExecutionUpdate
 
-router = APIRouter(prefix="/public/executions", tags=["Executions"])
+router = APIRouter(prefix="/public/executions", tags=["public-executions"])
 
 
 def get_session() -> Generator[Session, None, None]:

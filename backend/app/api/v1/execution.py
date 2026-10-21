@@ -13,7 +13,7 @@ from app.models.execution import Execution
 from app.models.user import User
 from app.schemas.execution import ExecutionCreate, ExecutionRead, ExecutionUpdate
 
-router = APIRouter(prefix="/executions", tags=["Executions"])
+router = APIRouter(prefix="/executions", tags=["executions"])
 
 
 def get_session() -> Generator[Session, None, None]:
