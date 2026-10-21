@@ -1,5 +1,10 @@
 import type { BlockEdge } from "@/components/react-flow/edges"
 import type { AppNode } from "@/components/react-flow/nodes"
+import {
+  fromBlockGraphDocument,
+  isBlockGraphDocument,
+  toBlockGraphDocument,
+} from "@/lib/block-graph"
 
 export type ExecutionCreatePayload = {
   name: string
@@ -46,17 +51,22 @@ export async function getTemplateExecution(executionId: string): Promise<Executi
   }
 
   const execution: unknown = await response.json()
-  if (
-    !isRecord(execution) ||
-    !("block_graph" in execution) ||
-    !isExecutionGraph(execution.block_graph)
-  ) {
+  if (!isRecord(execution) || !("block_graph" in execution)) {
     throw new Error(
-      "Failed to load template execution: response is missing block_graph.nodes or block_graph.edges."
+      "Failed to load template execution: response is missing block_graph."
     )
   }
 
-  return execution.block_graph
+  if (isExecutionGraph(execution.block_graph)) {
+    return execution.block_graph
+  }
+  if (isBlockGraphDocument(execution.block_graph)) {
+    return fromBlockGraphDocument(execution.block_graph)
+  }
+
+  throw new Error(
+    "Failed to load template execution: block_graph must contain nodes and edges or a blockGraph array."
+  )
 }
 
 // 2. Create a new execution (from the template) in the database
@@ -73,10 +83,7 @@ export async function createPublicExecution(
     headers,
     body: JSON.stringify({
       name: payload.name,
-      block_graph: {
-        nodes: payload.nodes,
-        edges: payload.edges,
-      },
+      block_graph: toBlockGraphDocument(payload.nodes, payload.edges),
     })
   })
 
@@ -105,10 +112,7 @@ export async function patchPublicExecution(
     headers,
     body: JSON.stringify({
       name: payload.name,
-      block_graph: {
-        nodes: payload.nodes,
-        edges: payload.edges,
-      },
+      block_graph: toBlockGraphDocument(payload.nodes, payload.edges),
     })
   })
 
