@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
 
 from app.api.v1.execution import router as execution_router
@@ -33,6 +34,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=config.app_name, lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
+    allow_headers=["*"],
+)
 
 api_v1 = APIRouter(prefix="/api/v1")
 api_v1.include_router(execution_router)
