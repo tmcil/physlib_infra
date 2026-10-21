@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 1757hXdRpuoh0aXpQWmOdZ9DS3kWsPUcfumyrMWxYvCe1JItKxlgAbtzDb1YfEu
+\restrict wnXTaOgmadLPSLLBKDht6ZJhmW49jJc97p73BMlX3Ynplbh13RGIDLoSFPpHBsI
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-1.pgdg24.04+2)
@@ -55,8 +55,9 @@ CREATE TABLE public.executions (
     block_graph jsonb NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    user_id uuid NOT NULL,
-    name character varying(255) DEFAULT ''::character varying NOT NULL
+    user_id uuid,
+    name character varying(255) DEFAULT ''::character varying NOT NULL,
+    is_public boolean NOT NULL
 );
 
 
@@ -124,5 +125,5 @@ ALTER TABLE ONLY public.executions
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 1757hXdRpuoh0aXpQWmOdZ9DS3kWsPUcfumyrMWxYvCe1JItKxlgAbtzDb1YfEu
+\unrestrict wnXTaOgmadLPSLLBKDht6ZJhmW49jJc97p73BMlX3Ynplbh13RGIDLoSFPpHBsI
 

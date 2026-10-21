@@ -4,6 +4,7 @@ from fastapi import APIRouter, FastAPI
 from sqlmodel import SQLModel
 
 from app.api.v1.execution import router as execution_router
+from app.api.v1.public_execution import router as public_execution_router
 from app.api.v1.user import auth_router, register_router, users_router
 from app.api.v1.websockets import ws_router
 from app.core.config import config
@@ -35,6 +36,7 @@ app = FastAPI(title=config.app_name, lifespan=lifespan)
 
 api_v1 = APIRouter(prefix="/api/v1")
 api_v1.include_router(execution_router)
+api_v1.include_router(public_execution_router)
 api_v1.include_router(ws_router)
 api_v1.include_router(
     auth_router,

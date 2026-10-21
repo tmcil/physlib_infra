@@ -11,7 +11,7 @@ from app.core.dependencies import get_rabbitmq_client
 from app.core.rabbitmq import RabbitMQClient
 from app.models.execution import Execution
 from app.models.user import User
-from app.schemas.execution import ExecutionCreate, ExecutionRead
+from app.schemas.execution import ExecutionCreate, ExecutionRead, ExecutionUpdate
 
 router = APIRouter(prefix="/executions", tags=["Executions"])
 
@@ -29,21 +29,18 @@ def get_session() -> Generator[Session, None, None]:
         status.HTTP_409_CONFLICT: {
             "description": "An execution with this ID already exists.",
         },
-        status.HTTP_503_SERVICE_UNAVAILABLE: {
-            "description": "Failed to publish execution to queue.",
-        },
     },
 )
 async def create_execution(
     execution_data: ExecutionCreate,
     session: Session = Depends(get_session),  # noqa: B008
     user: User = Depends(current_active_user),  # noqa: B008
-    rabbitmq: RabbitMQClient = Depends(get_rabbitmq_client),  # noqa: B008
 ):
     execution = Execution(
         block_graph=execution_data.block_graph,
-        block_config=execution_data.block_config,
+        name=execution_data.name,
         user_id=user.id,
+        is_public=False,
     )
 
     session.add(execution)
@@ -58,12 +55,61 @@ async def create_execution(
             detail=f"An execution with this ID already exists: {execution.id!s}",
         ) from exc
 
-    try:
-        await rabbitmq.publish_execution(execution.id)
-    except Exception as exc:
+    return execution
+
+
+@router.patch(
+    "/{execution_id}",
+    response_model=ExecutionRead,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"description": "Execution not found."},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "description": "Internal server error."
+        },
+        status.HTTP_400_BAD_REQUEST: {"description": "Bad request."},
+    },
+)
+def update_execution(
+    execution_id: UUID,
+    execution_data: ExecutionUpdate,
+    session: Session = Depends(get_session),  # noqa: B008
+    user: User = Depends(current_active_user),  # noqa: B008
+):
+
+    statement = select(Execution).where(
+        Execution.id == execution_id,
+        Execution.user_id == user.id,
+    )
+    execution = session.exec(statement).first()
+
+    if execution is None:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Failed to publish execution to queue.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Execution not found.",
+        )
+
+    if execution_data.block_graph is None and execution_data.name is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one of name or block_graph must be provided.",
+        )
+
+    if execution_data.name is not None:
+        execution.name = execution_data.name
+
+    if execution_data.block_graph is not None:
+        execution.block_graph = execution_data.block_graph
+
+    session.add(execution)
+
+    try:
+        session.commit()
+        session.refresh(execution)
+    except IntegrityError as exc:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update execution: {execution.id!s}",
         ) from exc
 
     return execution

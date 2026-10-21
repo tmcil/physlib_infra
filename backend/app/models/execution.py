@@ -20,9 +20,12 @@ class Execution(SQLModel, table=True):
     __tablename__ = "executions"  # pyright: ignore[reportAssignmentType]
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="user.id", index=True)
+    user_id: UUID | None = Field(
+        foreign_key="user.id", index=True, nullable=True, default=None
+    )
+    is_public: bool = Field(default=False, nullable=False)
     status: ExecutionStatus = Field(default=ExecutionStatus.CREATED)
-    name: str = Field(default="", max_length=255)
+    name: str = Field(default=None, max_length=255, nullable=False)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_type=DateTime(timezone=True),

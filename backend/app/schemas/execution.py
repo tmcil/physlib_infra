@@ -20,3 +20,8 @@ class ExecutionRead(BaseModel):
     created_at: datetime
     updated_at: datetime
     block_graph: dict
+
+
+class ExecutionUpdate(BaseModel):
+    name: str | None = None
+    block_graph: dict | None = None
