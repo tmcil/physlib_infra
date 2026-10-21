@@ -21,6 +21,7 @@ import {
     patchPublicExecution,
     runPublicExecution,
 } from "@/lib/public-execution-api"
+import Logs, { type LogsHandle } from "@/components/websockets/logs"
 
 export type PublicEditorProps = {
     executionId: string
@@ -31,6 +32,7 @@ export default function PublicEditor({
   executionId,
   executionName,
 }: PublicEditorProps) {
+    const [activeTab, setActiveTab] = useState("Analysis")
     const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([])
     const [edges, setEdges, onEdgesChange] = useEdgesState<BlockEdge>([])
     const [compilationStatus, setCompilationStatus] =
@@ -38,11 +40,11 @@ export default function PublicEditor({
     const [compilationIssues, setCompilationIssues] = useState<CompilationIssue[]>([])
     const [lastSuccessfulCompile, setLastSuccessfulCompile] = useState<string | null>(null)
     const [savedExecutionId, setSavedExecutionId] = useState<string | null>(null)
-    const [executionStatus, setExecutionStatus] = useState<string | null>(null)
     const [isRunning, setIsRunning] = useState(false)
     const [runError, setRunError] = useState<string | null>(null)
     const compileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const logsRef = useRef<LogsHandle>(null)
     const isCompiled = lastSuccessfulCompile === getGraphFingerprint(nodes, edges)
 
     // Load the initial state from the database
@@ -113,7 +115,6 @@ export default function PublicEditor({
                         : await createPublicExecution(payload)
 
                     setSavedExecutionId(response.id)
-                    setExecutionStatus(response.status)
                     setLastSuccessfulCompile(compiledFingerprint)
                     setCompilationStatus("success")
                     successTimerRef.current = setTimeout(() => {
@@ -164,10 +165,16 @@ export default function PublicEditor({
 
         setIsRunning(true)
         setRunError(null)
+        setActiveTab("Logs")
         try {
             if (!savedExecutionId) {
                 throw new Error("Compile the graph before running it.")
             }
+            const logs = logsRef.current
+            if (!logs) {
+                throw new Error("The logs viewer is unavailable.")
+            }
+            await logs.connect(savedExecutionId)
             await runPublicExecution(savedExecutionId)
         } catch (error) {
             setRunError(
@@ -182,7 +189,7 @@ export default function PublicEditor({
     console.log("edges:", edges);
 
     return (
-        <Tabs defaultValue="Analysis" className="flex w-full max-w-3xl h-[400px] flex-col border rounded-sm p-2">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(String(value))} className="flex w-full max-w-3xl h-[400px] flex-col border rounded-sm p-2">
             <TabsList>
                 <TabsTrigger value="Analysis">Analysis</TabsTrigger>
                 <TabsTrigger value="Logs">Logs</TabsTrigger>
@@ -208,9 +215,9 @@ export default function PublicEditor({
                     />
                 </div>
             </TabsContent>
-            <TabsContent value="Logs">
-                <div defaultValue="Logs" className="flex w-full h-full flex-col border rounded-sm p-0">
-                    Execution status: {executionStatus ?? "Not created"}
+            <TabsContent value="Logs" keepMounted>
+                <div className="flex h-full w-full flex-col border rounded-sm border p-0">
+                    <Logs ref={logsRef} />
                 </div>
             </TabsContent>
             <TabsContent value="Results">
