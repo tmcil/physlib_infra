@@ -116,7 +116,7 @@ export function compileGraph(
           type: "unconnected-required-port",
           nodeId: node.id,
           portId: port.portId,
-          message: `Required ${port.direction} port "${port.type}" on node "${node.id}" is not connected.`,
+          message: `Required ${port.direction} port "${port.type}" on node "${node.id.split("-").at(-1)}" is not connected.`,
         })
       }
     }

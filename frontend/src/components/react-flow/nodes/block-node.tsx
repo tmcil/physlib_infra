@@ -36,7 +36,7 @@ export function BlockNode({ id, data, selected }: NodeProps<BlockFlowNode>) {
       )}
     >
       <span className="absolute left-1 top-0.5 max-w-[90%] truncate text-[9px] leading-none text-muted-foreground">
-        {id.split("-")[0]}
+        {id.split("-").at(-1)}
       </span>
       <span className="absolute right-0 top-0 max-w-[90%] truncate text-[9px] leading-none text-muted-foreground">
         <BlockConfig

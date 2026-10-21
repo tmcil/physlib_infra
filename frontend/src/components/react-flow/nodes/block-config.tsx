@@ -137,7 +137,7 @@ export function BlockConfig({ data, block_name, id, onChange }: BlockConfigProps
                 <PopoverContent>
                     <PopoverHeader>
                         <PopoverTitle>{block_name} Configuration</PopoverTitle>
-                        <PopoverDescription>{id.split("-")[0]}</PopoverDescription>
+                        <PopoverDescription>{id.split("-").at(-1)}</PopoverDescription>
                     </PopoverHeader>
                     <Separator />
                     <ScrollArea className="h-150 w-full rounded-sm border p-4">
