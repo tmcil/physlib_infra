@@ -1,5 +1,6 @@
 import type { BlockEdge } from "../edges"
 import type { AppNode, BlockFlowNode } from "../nodes"
+import { arePortTypesCompatible } from "@/lib/port-types"
 
 export type CompilationIssue =
   | {
@@ -81,7 +82,7 @@ export function compileGraph(
     }
 
     if (
-      sourcePort.type !== targetPort.type ||
+      !arePortTypesCompatible(sourcePort.type, targetPort.type) ||
       edge.sourcePortType !== sourcePort.type ||
       edge.targetPortType !== targetPort.type
     ) {

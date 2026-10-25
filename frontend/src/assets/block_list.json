@@ -175,6 +175,30 @@
                 "integer": [],
                 "float": []
             }
+        },
+        {
+            "block": "BLOCK_OUTPUT_SAVE_PRODUCT",
+            "blockName": "Save product",
+            "type": "output",
+            "ports": [
+                {
+                    "type": "ANY",
+                    "array": false,
+                    "portId": "product",
+                    "optional": false,
+                    "direction": "input",
+                    "helpName": "",
+                    "helpMessage": "Save a product as an output of the analysis."
+                }
+            ],
+            "config": {
+                "dateandtime": [],
+                "check": [],
+                "string": [],
+                "combo": [],
+                "integer": [],
+                "float": []
+            }
         }
     ]
 }

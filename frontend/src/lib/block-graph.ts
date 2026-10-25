@@ -4,6 +4,7 @@ import blockList from "@/assets/block_list.json"
 import type { BlockEdge } from "@/components/react-flow/edges"
 import type { BlockConfigDefinition } from "@/components/react-flow/nodes/block-config"
 import type { AppNode, BlockFlowNode } from "@/components/react-flow/nodes"
+import { arePortTypesCompatible } from "@/lib/port-types"
 
 export type BlockGraphConnection = {
   portId: string
@@ -150,7 +151,7 @@ export function toBlockGraphDocument(
     if (!source || !target || !sourcePort || !targetPort) {
       throw new Error(`Cannot serialize invalid edge "${edge.id}".`)
     }
-    if (sourcePort.type !== targetPort.type) {
+    if (!arePortTypesCompatible(sourcePort.type, targetPort.type)) {
       throw new Error(`Cannot serialize edge "${edge.id}" between incompatible ports.`)
     }
 
@@ -224,7 +225,7 @@ export function fromBlockGraphDocument(
             `Cannot load connection from "${source.blockId}.${sourcePort.portId}" to "${connection.blockId}.${connection.portId}".`
           )
         }
-        if (sourcePort.type !== targetPort.type) {
+        if (!arePortTypesCompatible(sourcePort.type, targetPort.type)) {
           throw new Error(
             `Cannot load connection between incompatible ports "${sourcePort.portId}" and "${targetPort.portId}".`
           )
