@@ -42,3 +42,9 @@ class Execution(SQLModel, table=True):
         nullable=False,
     )
     block_graph: dict = Field(default_factory=dict, sa_type=JSONB)
+    output_results: dict = Field(
+        default_factory=list,
+        sa_type=JSONB,
+        sa_column_kwargs={"server_default": "[]"},
+        nullable=False,
+    )
