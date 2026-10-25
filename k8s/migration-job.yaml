@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migration-job
-          image: thomasm012/backend:0.1.5
+          image: thomasm012/backend:0.1.6
           imagePullPolicy: IfNotPresent
           command: ["alembic", "upgrade", "head"]
           env:
