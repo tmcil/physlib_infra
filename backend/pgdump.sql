@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 4qS4NFFkszRdpd9D9gMkNgFdP7T0zbxLaEryF6I3g76F2Hdp6PNn73uE370wGdL
+\restrict P3ee1NPFo137g3g1FkfSeFR89xtCp6flJBNd6vfRnFfh8xGmldRpHGg89J4VORc
 
 -- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
 -- Dumped by pg_dump version 18.6 (Ubuntu 18.6-1.pgdg24.04+2)
@@ -58,7 +58,7 @@ CREATE TABLE public.executions (
     user_id uuid,
     name character varying(255) DEFAULT ''::character varying NOT NULL,
     is_public boolean NOT NULL,
-    output_results jsonb DEFAULT '[]'::jsonb NOT NULL
+    results jsonb DEFAULT '[]'::jsonb NOT NULL
 );
 
 
@@ -126,5 +126,5 @@ ALTER TABLE ONLY public.executions
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 4qS4NFFkszRdpd9D9gMkNgFdP7T0zbxLaEryF6I3g76F2Hdp6PNn73uE370wGdL
+\unrestrict P3ee1NPFo137g3g1FkfSeFR89xtCp6flJBNd6vfRnFfh8xGmldRpHGg89J4VORc
 
