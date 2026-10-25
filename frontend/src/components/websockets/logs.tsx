@@ -99,7 +99,10 @@ const Logs = forwardRef<LogsHandle>(function Logs(_props, ref) {
           <p className="text-muted-foreground">No logs yet.</p>
         ) : (
           entries.map((entry, index) => (
-            <pre key={index} className="text-[11px] leading-tight text-muted-foreground">
+            <pre
+              key={index}
+              className="text-[11px] leading-tight whitespace-pre-wrap break-words text-muted-foreground"
+            >
               {entry}
             </pre>
           ))

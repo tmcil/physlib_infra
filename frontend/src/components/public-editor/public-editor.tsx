@@ -22,6 +22,7 @@ import {
     runPublicExecution,
 } from "@/lib/public-execution-api"
 import Logs, { type LogsHandle } from "@/components/websockets/logs"
+import Results, { type ResultsHandle } from "@/components/websockets/results"
 
 export type PublicEditorProps = {
     executionId: string
@@ -45,6 +46,7 @@ export default function PublicEditor({
     const compileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const logsRef = useRef<LogsHandle>(null)
+    const resultsRef = useRef<ResultsHandle>(null)
     const isCompiled = lastSuccessfulCompile === getGraphFingerprint(nodes, edges)
 
     // Load the initial state from the database
@@ -174,7 +176,14 @@ export default function PublicEditor({
             if (!logs) {
                 throw new Error("The logs viewer is unavailable.")
             }
-            await logs.connect(savedExecutionId)
+            const results = resultsRef.current
+            if (!results) {
+                throw new Error("The results viewer is unavailable.")
+            }
+            await Promise.all([
+                logs.connect(savedExecutionId),
+                results.connect(savedExecutionId),
+            ])
             await runPublicExecution(savedExecutionId)
         } catch (error) {
             setRunError(
@@ -189,7 +198,7 @@ export default function PublicEditor({
     console.log("edges:", edges);
 
     return (
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(String(value))} className="flex w-full max-w-3xl h-[400px] flex-col border rounded-sm p-2">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(String(value))} className="flex w-full max-w-3xl h-[400px] min-h-0 flex-col overflow-hidden border rounded-sm p-2">
             <TabsList>
                 <TabsTrigger value="Analysis">Analysis</TabsTrigger>
                 <TabsTrigger value="Logs">Logs</TabsTrigger>
@@ -215,14 +224,14 @@ export default function PublicEditor({
                     />
                 </div>
             </TabsContent>
-            <TabsContent value="Logs" keepMounted>
-                <div className="flex h-full w-full flex-col border rounded-sm border p-0">
+            <TabsContent value="Logs" keepMounted className="min-h-0 overflow-hidden">
+                <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border rounded-sm p-0">
                     <Logs ref={logsRef} />
                 </div>
             </TabsContent>
-            <TabsContent value="Results">
+            <TabsContent value="Results" keepMounted>
                 <div defaultValue="Results" className="flex w-full h-full flex-col border rounded-sm p-0">
-                    Results
+                    <Results ref={resultsRef} />
                 </div>
             </TabsContent>
         </Tabs>
