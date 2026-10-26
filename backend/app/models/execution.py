@@ -1,11 +1,18 @@
 from datetime import UTC, datetime
 from enum import Enum
+from typing import Any
 from uuid import UUID, uuid4
 
 # from pydantic import BaseModel, Field
 from sqlalchemy import DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
+
+
+class ExecutionResultStatus(str, Enum):
+    AVAILABLE = "AVAILABLE"
+    CLAIMED = "CLAIMED"
+    EXPIRED = "EXPIRED"
 
 
 class ExecutionStatus(str, Enum):
@@ -42,7 +49,7 @@ class Execution(SQLModel, table=True):
         nullable=False,
     )
     block_graph: dict = Field(default_factory=dict, sa_type=JSONB)
-    results: dict = Field(
+    results: list[dict[str, Any]] = Field(
         default_factory=list,
         sa_type=JSONB,
         sa_column_kwargs={"server_default": "[]"},

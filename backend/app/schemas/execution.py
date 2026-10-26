@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.execution import ExecutionStatus
+from app.models.execution import ExecutionResultStatus, ExecutionStatus
 
 
 class ExecutionCreate(BaseModel):
@@ -25,3 +25,11 @@ class ExecutionRead(BaseModel):
 class ExecutionUpdate(BaseModel):
     name: str | None = None
     block_graph: dict | None = None
+
+
+class ExecutionResultRead(BaseModel):
+    type: str
+    status: ExecutionResultStatus
+    claimed: bool
+    expires_at: datetime
+    file: str

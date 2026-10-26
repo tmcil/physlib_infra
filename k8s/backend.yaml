@@ -84,7 +84,18 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: jwt-auth-secret
-
+            # Block vars
+            - name: WORKING_DIR
+              value: /mnt/satops/executions
+                  
+          volumeMounts:
+            - name: executions
+              mountPath: /mnt/satops
+      volumes:
+        - name: executions
+          hostPath:
+            path: /mnt/satops
+            type: Directory
 ---
 
 apiVersion: v1

@@ -54,6 +54,9 @@ class Config(BaseSettings):
     # JWT auth
     jwt_auth_secret: str = os.getenv("JWT_AUTH_SECRET", "")
 
+    # Persistent volume
+    working_dir: str = os.getenv("WORKING_DIR", "")
+
     @property
     def pgurl(self) -> str:
         return f"postgresql://{self.pguser}:{self.pgpassword}@{self.pghost}:{self.pgport}/{self.pgdatabase}"
