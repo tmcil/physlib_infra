@@ -19,6 +19,14 @@ export type ExecutionCreateResponse = {
   status: string
 }
 
+export type PublicExecutionResultMetadata = {
+  type: string
+  status: "AVAILABLE" | "CLAIMED" | "EXPIRED"
+  claimed: boolean
+  expires_at: string
+  file: string
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
@@ -144,6 +152,46 @@ export async function runPublicExecution(executionId: string): Promise<void> {
       `Failed to run execution (${response.status} ${response.statusText})${details ? `: ${details}` : ""}`
     )
   }
+}
+
+// 4. Get result metadata from the execution
+export async function getPublicExecutionResultMetadata(
+  executionId: string,
+  resultFilename: string
+): Promise<PublicExecutionResultMetadata> {
+  const endpoint = `/api/v1/public/executions/${executionId}/results/${encodeURIComponent(resultFilename)}`
+  const response = await fetch(endpoint, {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    const details = await response.text()
+    throw new Error(
+      `Failed to get execution result metadata (${response.status} ${response.statusText})${details ? `: ${details}` : ""}`
+    )
+  }
+
+  return await response.json()
+}
+
+// 5. Claim a result from the execution
+export async function claimPublicExecutionResult(
+  executionId: string,
+  resultFilename: string
+): Promise<string> {
+  const endpoint = `/api/v1/public/executions/${executionId}/results/${encodeURIComponent(resultFilename)}/claim`
+  const response = await fetch(endpoint, {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    const details = await response.text()
+    throw new Error(
+      `Failed to claim execution result (${response.status} ${response.statusText})${details ? `: ${details}` : ""}`
+    )
+  }
+
+  return await response.text()
 }
 
 /* export async function submitExecution(

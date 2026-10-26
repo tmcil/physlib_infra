@@ -229,8 +229,8 @@ export default function PublicEditor({
                     <Logs ref={logsRef} />
                 </div>
             </TabsContent>
-            <TabsContent value="Results" keepMounted>
-                <div defaultValue="Results" className="flex w-full h-full flex-col border rounded-sm p-0">
+            <TabsContent value="Results" keepMounted className="min-h-0 overflow-hidden">
+                <div className="flex h-full min-h-0 w-full flex-col overflow-hidden border rounded-sm p-0">
                     <Results ref={resultsRef} />
                 </div>
             </TabsContent>
