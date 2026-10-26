@@ -198,7 +198,7 @@ export default function PublicEditor({
     console.log("edges:", edges);
 
     return (
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(String(value))} className="flex w-full max-w-3xl h-[400px] min-h-0 flex-col overflow-hidden border rounded-sm p-2">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(String(value))} className="flex w-full max-w-3xl h-[500px] min-h-0 flex-col overflow-hidden border rounded-sm p-2">
             <TabsList>
                 <TabsTrigger value="Analysis">Analysis</TabsTrigger>
                 <TabsTrigger value="Logs">Logs</TabsTrigger>

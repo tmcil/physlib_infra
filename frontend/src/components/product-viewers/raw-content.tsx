@@ -1,10 +1,11 @@
 import { useHighlightedCode } from "@/hooks/use-highlighted-code"
 import {
-  CodeBlock,
-  CodeBlockContent,
-  CodeBlockHeader,
-  CodeBlockTitle,
-} from "@/components/ui/code-block"
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import { CodeBlock, CodeBlockContent } from "@/components/ui/code-block"
 
 type RawContentProps = {
   content: string
@@ -28,23 +29,30 @@ export default function RawContent({ content }: RawContentProps) {
   const highlightedLines = useHighlightedCode(formattedContent, "json")
 
   return (
-    <CodeBlock size="sm" aria-label="Raw content">
-      <CodeBlockHeader>
-        <CodeBlockTitle>Raw content</CodeBlockTitle>
-      </CodeBlockHeader>
-      <CodeBlockContent
-        wrap
-        className="text-[11px] leading-tight"
-        style={{
-          scrollbarColor: "var(--muted-foreground) var(--background)",
-        }}
-      >
-        {highlightedLines.map((line, index) => (
-          <span className="block whitespace-pre-wrap break-words" key={index}>
-            {line}
-          </span>
-        ))}
-      </CodeBlockContent>
-    </CodeBlock>
+    <Accordion defaultValue={[]} className="rounded-lg border px-2">
+      <AccordionItem value="raw-content" className="border-0">
+        <AccordionTrigger>Raw content</AccordionTrigger>
+        <AccordionContent>
+          <CodeBlock size="sm" aria-label="Raw content">
+            <CodeBlockContent
+              wrap
+              className="text-[11px] leading-tight"
+              style={{
+                scrollbarColor: "var(--muted-foreground) var(--background)",
+              }}
+            >
+              {highlightedLines.map((line, index) => (
+                <span
+                  className="block break-words whitespace-pre-wrap"
+                  key={index}
+                >
+                  {line}
+                </span>
+              ))}
+            </CodeBlockContent>
+          </CodeBlock>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   )
 }

@@ -193,9 +193,13 @@ async def run_execution(
     session: Session = Depends(get_session),  # noqa: B008
     rabbitmq: RabbitMQClient = Depends(get_rabbitmq_client),  # noqa: B008
 ):
-    statement = select(Execution).where(
-        Execution.id == execution_id,
-        Execution.is_public == True,
+    statement = (
+        select(Execution)
+        .where(
+            Execution.id == execution_id,
+            Execution.is_public == True,
+        )
+        .with_for_update()
     )
     execution = session.exec(statement).first()
 
@@ -205,13 +209,20 @@ async def run_execution(
             detail="Execution not found.",
         )
 
+    execution.results = []
+    session.add(execution)
+    session.flush()
+
     try:
         await rabbitmq.publish_execution(execution.id)
     except Exception as exc:
+        session.rollback()
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Failed to publish execution to queue.",
         ) from exc
+
+    session.commit()
 
     return {
         "execution_id": str(execution.id),
